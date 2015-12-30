@@ -1,11 +1,7 @@
 package controllers
 
-import (
-	"github.com/astaxie/beego"
-)
-
 type IndexController struct {
-	beego.Controller
+	BaseController
 }
 
 func (this *IndexController) Get() {
@@ -16,6 +12,5 @@ func (this *IndexController) Get() {
 		"jd",
 		18,
 	}
-	this.Data["json"] = &a
-	this.ServeJson()
+	this.View(a)
 }
