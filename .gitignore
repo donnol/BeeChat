@@ -1,2 +1,3 @@
-/server/server
 /server/nohup.out
+/server/server
+.DS_Store

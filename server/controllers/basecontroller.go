@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	host = "www.jdscript.com"
+	host = "www.test2.hongbeibang.com"
 )
 
 type BaseController struct {

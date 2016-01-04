@@ -1,6 +1,7 @@
 package message
 
 import (
+	. "beechat/models/client"
 	. "beechat/models/request"
 	"time"
 )
@@ -12,6 +13,7 @@ const (
 type MessageAoModel struct {
 	MessageDb MessageDbModel
 	RequestAo RequestAoModel
+	ClientAo  ClientAoModel
 }
 
 func (this *MessageAoModel) GetByClientId(clientId int) []Message {
@@ -24,6 +26,7 @@ func (this *MessageAoModel) Send(sendClientId, receiveClientId int, text string)
 	if sendClientId == receiveClientId {
 		return
 	}
+	this.ClientAo.Get(receiveClientId)
 
 	this.MessageDb.Add(Message{
 		SendClientId:    sendClientId,
