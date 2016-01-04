@@ -1,23 +1,79 @@
 <html>
 <head>
+	<script type="text/javascript" src="jquery-1.8.0.js"></script>
 	<title>
 		chat room
 	</title>
+	<style type="text/css">
+		.main {text-align:center; margin:0 auto; position: absolute; top: 400px; left: 0; bottom: 0; right: 0;}
+		.msg {text-align:center; margin:0 auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-color: #eea;height:400px;}
+		.btn {text-align:center; background-color: #eee; width:60px;height:25px;}
+		.idInput {width:360px; height:60px;background-color:#cde;}
+		.msgInput {width:360px; height:60px;background-color:#cde;}
+	</style>
 </head>
 <body>
-	<div class="textarea" style="text-align:center; margin:0 auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
-		
-	</div>
-	<div style="text-align:center; margin:0 auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
-		<form action="/message/send" method="post">
-			发送给：<input type="text" name="receiveClientId"></input></br>
-			消息：<input type="text" name="text"></input></br>
-			<input type="submit" name="提交"></input></br>
-		</form>
-	</div>
+	<div class="msg" id="msgShow">
+		<textarea class="txt" id="txtShow" rows="25" cols="150" readonly="readonly" title="聊天室">
 
+		</textarea>
+	</div>
+	<div class="main">
+			<input class="idInput" type="text" id="receiveClientId" value="ID"></input></br>
+			<input class="msgInput" type="text" id="text" value="消息"></input></br>
+			<button class="btn" id="btn1" onclick="sub()">发送</button>
+			<button class="btn" id="btn2" onclick="logout()">退出</button>
+	</div>
 	<script type="text/javascript">
-		
+function logout(){
+	$.get('/login/logout', {}, function(data){
+		console.log(data);
+		location.reload();
+	});
+}
+function sub(){
+	var receiveClientId = document.getElementById("receiveClientId").value;
+	if(receiveClientId == ""){
+		receiveClientId = 0;
+	}
+	var text = document.getElementById("text").value;
+	$.post('/message/send',{receiveClientId:receiveClientId, text:text}, function(data){
+		console.log(data);
+		location.reload();
+	});
+}
+function appendTextareaStr(str){
+    var textarea = document.getElementById("txtShow");
+	textarea.style.position = 'relative';
+    var textNode = document.createTextNode("\n"+str+"\n");
+    textarea.appendChild(textNode);
+}
+function islogin(next){
+	$.get('/login/islogin',{},function(data){
+		console.log(data);
+		if( data.islogin == false ){
+			location.href = "login.html";
+			return;
+		}
+		next();
+	});
+}
+function get(){
+	$.get('/message/get',{},function(data){
+		var beginIndex = data.length - 12 + 3;
+		$.each(data, function(k, v){
+			if(k >= beginIndex){
+				if(v.receiveClientId == 0){
+					receiveClientId = "all";
+				}else{
+					receiveClientId = v.receiveClientId;
+				}
+				appendTextareaStr(v.sendClientId+" send to "+ receiveClientId+" in "+v.createTime+" :   "+v.text);
+			}
+		});
+	});
+}
+islogin(get);
 	</script>
 </body>
 </html>

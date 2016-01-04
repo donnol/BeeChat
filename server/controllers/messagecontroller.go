@@ -14,6 +14,13 @@ type MessageController struct {
 	ClientLoginAo ClientLoginAoModel
 }
 
+func (this *MessageController) Get() {
+	client := this.ClientLoginAo.CheckMustLogin(this.Ctx)
+
+	result := this.MessageAo.GetByClientId(client.ClientId)
+	this.View(result)
+}
+
 func (this *MessageController) Send() {
 	receiveClientId := this.Ctx.Input.Query("receiveClientId")
 	text := this.Ctx.Input.Query("text")

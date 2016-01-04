@@ -21,7 +21,16 @@ func (this *MessageDbModel) Get(id int) Message {
 
 func (this *MessageDbModel) GetUnreadByReceiveClientId(receiveClientId int) []Message {
 	var messages []Message
-	err := DB.Where("receiveClientId = ? and type = 1", receiveClientId).Find(&messages)
+	err := DB.Where("(receiveClientId = ? or receiveClientId = 0) and type = 1", receiveClientId).Find(&messages)
+	if err != nil {
+		panic(err)
+	}
+	return messages
+}
+
+func (this *MessageDbModel) GetByClientId(clientId int) []Message {
+	var messages []Message
+	err := DB.Where("sendClientId = ? or receiveClientId = ? or receiveClientId = 0", clientId, clientId).OrderBy("createTime asc").Find(&messages)
 	if err != nil {
 		panic(err)
 	}
@@ -39,6 +48,13 @@ func (this *MessageDbModel) GetBySendClientId(sendClientId int) []Message {
 
 func (this *MessageDbModel) Add(data Message) {
 	_, err := DB.Insert(data)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (this *MessageDbModel) Mod(id int, data Message) {
+	_, err := DB.Where("messageId = ?", id).Update(&data)
 	if err != nil {
 		panic(err)
 	}
