@@ -27,7 +27,6 @@ func (this *ClientLoginAoModel) Login(ctx *context.Context, name string, passwor
 		panic("login failed, don't exist client!")
 	} else {
 		ctx.Output.Session("name", data[0].ClientId)
-		fmt.Println("login success")
 		return data[0]
 	}
 }

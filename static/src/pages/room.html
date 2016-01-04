@@ -9,11 +9,15 @@
 		.msg {text-align:center; margin:0 auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-color: #eea;height:400px;}
 		.btn {text-align:center; background-color: #eee; width:60px;height:25px;}
 		.idInput {width:360px; height:60px;background-color:#cde;}
+		.name {padding:15px;}
 		.msgInput {width:360px; height:60px;background-color:#cde;}
+		.txt {width:600px;overflow-y:scroll;}
 	</style>
 </head>
 <body>
 	<div class="msg" id="msgShow">
+		<div class="name">
+		</div>
 		<textarea class="txt" id="txtShow" rows="25" cols="150" readonly="readonly" title="聊天室">
 
 		</textarea>
@@ -25,6 +29,7 @@
 			<button class="btn" id="btn2" onclick="logout()">退出</button>
 	</div>
 	<script type="text/javascript">
+var client = {};
 function logout(){
 	$.get('/login/logout', {}, function(data){
 		console.log(data);
@@ -37,10 +42,14 @@ function sub(){
 		receiveClientId = 0;
 	}
 	var text = document.getElementById("text").value;
-	$.post('/message/send',{receiveClientId:receiveClientId, text:text}, function(data){
+	$.post('/message/post',{receiveClientId:receiveClientId, text:text}, function(data){
 		console.log(data);
-		location.reload();
+		appendTextareaStr(text);
+		showBottom();
 	});
+}
+function showBottom() {
+		document.getElementById('txtShow').scrollTop = document.getElementById('txtShow').scrollHeight;
 }
 function appendTextareaStr(str){
     var textarea = document.getElementById("txtShow");
@@ -55,8 +64,15 @@ function islogin(next){
 			location.href = "login.html";
 			return;
 		}
+		client = {
+			"clientId":data.clientId,
+			"name":data.name,
+		};
 		next();
 	});
+}
+function showClient(name){
+	$(".name").text("当前登陆用户："+name);
 }
 function get(){
 	$.get('/message/get',{},function(data){
@@ -73,7 +89,34 @@ function get(){
 		});
 	});
 }
-islogin(get);
+function recv(){
+	var lastReceived = 0;
+	var isWait = false;
+	var fetch = function() {
+		if (isWait) return;
+		isWait = true;
+		$.get('/message/fetch', {lastReceived:lastReceived}, function(data){
+			if( data == null ) return;
+			console.log(data);
+			$.each(data, function(i, event){
+				switch (event.type) {
+					case 2:
+						console.log(event.content);
+						appendTextareaStr(event.content);
+						showBottom();
+						break;
+				}
+				lastReceived = event.timestamp;
+			});
+			isWait = false;
+		});
+	}
+	setInterval(fetch, 3000);
+}
+islogin(function(){
+	showClient(client.name);
+	recv();
+});
 	</script>
 </body>
 </html>

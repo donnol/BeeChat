@@ -26,7 +26,9 @@ func (this *MessageAoModel) Send(sendClientId, receiveClientId int, text string)
 	if sendClientId == receiveClientId {
 		return
 	}
-	this.ClientAo.Get(receiveClientId)
+	if receiveClientId != 0 {
+		this.ClientAo.Get(receiveClientId)
+	}
 
 	this.MessageDb.Add(Message{
 		SendClientId:    sendClientId,

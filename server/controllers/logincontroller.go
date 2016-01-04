@@ -27,13 +27,13 @@ func (this *LoginController) Logout() {
 
 func (this *LoginController) Islogin() {
 	result := struct {
+		Client
 		Islogin bool `json:"islogin"`
-	}{
-		false,
-	}
+	}{}
 
 	client := this.ClientLoginAo.Islogin(this.Ctx)
 	if client.ClientId != 0 {
+		result.Client = client
 		result.Islogin = true
 	}
 	this.View(result)

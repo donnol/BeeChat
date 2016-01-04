@@ -49,6 +49,8 @@ alter table t_request add index clientIdIndex(clientId);
 #初始数据
 insert into t_client(clientId, name, password)values
 (10001, 'jd', sha1('123')),
-(10002, 'fish', sha1('123'));
+(10002, 'fish', sha1('123')),
+(10003, 'winmay', sha1('123')),
+(10004, 'doing', sha1('123'));
 
 select * from t_client;

@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	. "beechat/models/archive"
+	. "beechat/models/chatroom"
 	. "beechat/models/client"
 	. "beechat/models/message"
-	"fmt"
 	"strconv"
 )
 
@@ -21,7 +22,7 @@ func (this *MessageController) Get() {
 	this.View(result)
 }
 
-func (this *MessageController) Send() {
+func (this *MessageController) Post() {
 	receiveClientId := this.Ctx.Input.Query("receiveClientId")
 	text := this.Ctx.Input.Query("text")
 
@@ -29,19 +30,37 @@ func (this *MessageController) Send() {
 
 	receClientId, err := strconv.Atoi(receiveClientId)
 	if err != nil {
-		panic(err)
+		receClientId = 0
 	}
 	this.MessageAo.Send(client.ClientId, receClientId, text)
+
+	Join(client.Name)
+	Publish <- NewEvent(EVENT_MESSAGE, client.Name, text)
 
 	result := struct{}{}
 	this.View(result)
 }
 
-func (this *MessageController) Recv() {
-	client := this.ClientLoginAo.CheckMustLogin(this.Ctx)
-	clientId := client.ClientId
+func (this *MessageController) Fetch() {
+	lastReceived, err := this.GetInt("lastReceived")
+	if err != nil {
+		return
+	}
 
-	result := this.MessageAo.Recv(clientId)
-	fmt.Println(result)
-	this.View(result)
+	this.ClientLoginAo.CheckMustLogin(this.Ctx)
+
+	events := GetEvents(int(lastReceived))
+	if len(events) > 0 {
+		this.Data["json"] = events
+		this.ServeJson()
+		return
+	}
+
+	// Wait for new message(s).
+	ch := make(chan bool)
+	WaitingList.PushBack(ch)
+	<-ch
+
+	this.Data["json"] = GetEvents(int(lastReceived))
+	this.ServeJson()
 }
