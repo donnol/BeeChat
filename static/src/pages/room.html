@@ -5,8 +5,8 @@
 		chat room
 	</title>
 	<style type="text/css">
-		.main {text-align:center; margin:0 auto; position: absolute; top: 400px; left: 0; bottom: 0; right: 0;}
-		.msg {text-align:center; margin:0 auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-color: #eea;height:400px;}
+		.main {text-align:center; margin:0 auto; position: relative; top: 430px; left: 0; bottom: 0; right: 0;}
+		.msg {text-align:center; margin:0 auto; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-color: #eea;height:600px;}
 		.btn {text-align:center; background-color: #eee; width:60px;height:25px;}
 		.idInput {width:360px; height:60px;background-color:#cde;}
 		.name {padding:15px;}
@@ -15,11 +15,11 @@
 	</style>
 </head>
 <body>
+	<div>
 	<div class="msg" id="msgShow">
 		<div class="name">
 		</div>
 		<textarea class="txt" id="txtShow" rows="25" cols="150" readonly="readonly" title="聊天室">
-
 		</textarea>
 	</div>
 	<div class="main">
@@ -27,6 +27,7 @@
 			<input class="msgInput" type="text" id="text" value="消息"></input></br>
 			<button class="btn" id="btn1" onclick="sub()">发送</button>
 			<button class="btn" id="btn2" onclick="logout()">退出</button>
+	</div>
 	</div>
 	<script type="text/javascript">
 var client = {};
@@ -44,7 +45,7 @@ function sub(){
 	var text = document.getElementById("text").value;
 	$.post('/message/post',{receiveClientId:receiveClientId, text:text}, function(data){
 		console.log(data);
-		appendTextareaStr(text);
+		appendTextareaStr("me: "+text);
 		showBottom();
 	});
 }
@@ -100,6 +101,14 @@ function recv(){
 			console.log(data);
 			$.each(data, function(i, event){
 				switch (event.type) {
+					case 0:
+						appendTextareaStr(event.user+" "+event.timestamp+" 进入聊天室");
+						showBottom();
+						break;
+					case 1:
+						appendTextareaStr(event.user+" "+event.timestamp+" 离开聊天室");
+						showBottom();
+						break;
 					case 2:
 						console.log(event.content);
 						appendTextareaStr(event.content);
@@ -111,7 +120,7 @@ function recv(){
 			isWait = false;
 		});
 	}
-	setInterval(fetch, 3000);
+	setInterval(fetch, 1000);
 }
 islogin(function(){
 	showClient(client.name);

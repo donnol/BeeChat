@@ -11,5 +11,6 @@ func main() {
 	beego.SetStaticPath("/chat", "../static/src/pages")
 	beego.SessionProvider = "redis"
 	beego.SessionSavePath = "127.0.0.1:6379,100,13420693396"
+	beego.AutoRender = true
 	beego.Run()
 }

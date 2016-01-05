@@ -15,8 +15,8 @@ type Subscription struct {
 	New     <-chan archive.Event // New events coming in.
 }
 
-func NewEvent(ep archive.EventType, user, msg string) archive.Event {
-	return archive.Event{ep, user, int(time.Now().Unix()), msg}
+func NewEvent(ep archive.EventType, user, ruser, msg string) archive.Event {
+	return archive.Event{ep, user, ruser, int(time.Now().Unix()), msg}
 }
 
 func Join(user string /*, ws *websocket.Conn*/) {
@@ -53,7 +53,7 @@ func chatroom() {
 			if !isUserExist(subscribers, sub.Name) {
 				subscribers.PushBack(sub) // Add user to the end of list.
 				// Publish a JOIN event.
-				Publish <- NewEvent(archive.EVENT_JOIN, sub.Name, "")
+				Publish <- NewEvent(archive.EVENT_JOIN, sub.Name, "all", "")
 				beego.Info("New user:", sub.Name /*, ";WebSocket:", sub.Conn != nil*/)
 			} else {
 				beego.Info("Old user:", sub.Name /*, ";WebSocket:", sub.Conn != nil*/)
@@ -81,7 +81,7 @@ func chatroom() {
 					//ws.Close()
 					//beego.Error("WebSocket closed:", unsub)
 					//}
-					Publish <- NewEvent(archive.EVENT_LEAVE, unsub, "") // Publish a LEAVE event.
+					Publish <- NewEvent(archive.EVENT_LEAVE, unsub, "all", "") // Publish a LEAVE event.
 					break
 				}
 			}

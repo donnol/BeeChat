@@ -3,9 +3,12 @@ package client
 import (
 	"crypto/sha1"
 	"fmt"
+	"io"
+
 	"github.com/astaxie/beego/context"
 	"github.com/astaxie/beego/session"
-	"io"
+
+	. "beechat/models/chatroom"
 )
 
 var globalSessions *session.Manager
@@ -27,6 +30,7 @@ func (this *ClientLoginAoModel) Login(ctx *context.Context, name string, passwor
 		panic("login failed, don't exist client!")
 	} else {
 		ctx.Output.Session("name", data[0].ClientId)
+		Join(data[0].Name)
 		return data[0]
 	}
 }
@@ -34,6 +38,8 @@ func (this *ClientLoginAoModel) Login(ctx *context.Context, name string, passwor
 func (this *ClientLoginAoModel) Logout(ctx *context.Context) {
 	clientId, ok := ctx.Input.Session("name").(int)
 	if ok == true && clientId != 0 {
+		client := this.ClientAo.Get(clientId)
+		Leave(client.Name)
 		ctx.Output.Session("name", 0)
 	}
 }

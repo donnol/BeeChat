@@ -5,12 +5,6 @@ type IndexController struct {
 }
 
 func (this *IndexController) Get() {
-	a := struct {
-		Name string `json:"name"`
-		Age  int    `json:"age"`
-	}{
-		"jd",
-		18,
-	}
-	this.View(a)
+	this.Redirect("chat/room.html", 302)
+	return
 }

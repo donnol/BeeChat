@@ -1,8 +1,11 @@
 package message
 
 import (
+	. "beechat/models/archive"
+	. "beechat/models/chatroom"
 	. "beechat/models/client"
 	. "beechat/models/request"
+
 	"time"
 )
 
@@ -26,9 +29,18 @@ func (this *MessageAoModel) Send(sendClientId, receiveClientId int, text string)
 	if sendClientId == receiveClientId {
 		return
 	}
+	receiveClient := Client{}
 	if receiveClientId != 0 {
-		this.ClientAo.Get(receiveClientId)
+		receiveClient = this.ClientAo.Get(receiveClientId)
+	} else {
+		receiveClient = Client{
+			Name: "all",
+		}
 	}
+	sendClient := this.ClientAo.Get(sendClientId)
+
+	text = sendClient.Name + ": " + text
+	Publish <- NewEvent(EVENT_MESSAGE, sendClient.Name, receiveClient.Name, text)
 
 	this.MessageDb.Add(Message{
 		SendClientId:    sendClientId,

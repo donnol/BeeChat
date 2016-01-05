@@ -5,6 +5,7 @@ import (
 	. "beechat/models/chatroom"
 	. "beechat/models/client"
 	. "beechat/models/message"
+	"fmt"
 	"strconv"
 )
 
@@ -34,9 +35,6 @@ func (this *MessageController) Post() {
 	}
 	this.MessageAo.Send(client.ClientId, receClientId, text)
 
-	Join(client.Name)
-	Publish <- NewEvent(EVENT_MESSAGE, client.Name, text)
-
 	result := struct{}{}
 	this.View(result)
 }
@@ -47,12 +45,12 @@ func (this *MessageController) Fetch() {
 		return
 	}
 
-	this.ClientLoginAo.CheckMustLogin(this.Ctx)
+	client := this.ClientLoginAo.CheckMustLogin(this.Ctx)
 
-	events := GetEvents(int(lastReceived))
+	events := GetEvents(int(lastReceived), client.Name)
 	if len(events) > 0 {
-		this.Data["json"] = events
-		this.ServeJson()
+		fmt.Println("go")
+		this.View(events)
 		return
 	}
 
@@ -61,6 +59,5 @@ func (this *MessageController) Fetch() {
 	WaitingList.PushBack(ch)
 	<-ch
 
-	this.Data["json"] = GetEvents(int(lastReceived))
-	this.ServeJson()
+	this.View(GetEvents(int(lastReceived), client.Name))
 }
