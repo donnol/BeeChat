@@ -60,8 +60,10 @@ func chatroom() {
 			}
 		case event := <-Publish:
 			// Notify waiting list.
-			for ch := WaitingList.Back(); ch != nil; ch = ch.Prev() {
+			var n *list.Element
+			for ch := WaitingList.Back(); ch != nil; ch = n {
 				ch.Value.(chan bool) <- true
+				n = ch.Prev()
 				WaitingList.Remove(ch)
 			}
 

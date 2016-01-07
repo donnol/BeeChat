@@ -46,6 +46,7 @@ func (this *MessageController) Fetch() {
 	}
 
 	client := this.ClientLoginAo.CheckMustLogin(this.Ctx)
+	fmt.Println("login client id: " + strconv.Itoa(client.ClientId) + "login client name: " + client.Name)
 
 	events := GetEvents(int(lastReceived), client.Name)
 	if len(events) > 0 {
