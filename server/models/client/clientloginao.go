@@ -41,6 +41,7 @@ func (this *ClientLoginAoModel) Logout(ctx *context.Context) {
 		client := this.ClientAo.Get(clientId)
 		Leave(client.Name)
 		ctx.Output.Session("name", 0)
+		fmt.Println("logout!")
 	}
 }
 
